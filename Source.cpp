@@ -16,62 +16,82 @@ History:
 #include <stdlib.h>
 #endif
 #include <iostream>
+#include <string>
 using std::cout;
-//#include <vhandtk/vhtBase.h>
-#include <vht.h>
+// matlab engine header files
+//#include "MatlabDataArray.hpp"
+//#include "MatlabEngine.hpp"
+// matlab mex header files
+#include "mex.h"
+// vht related header files
+//#include <vhtBase.h>
+
 //#include <vht6DofDevice.h>
 //#include <vhtBadData.h>
 //#include <vhtBadLogic.h>
 //#include <vhtBaseException.h>
 //#include <vhtContactPatch.h>
-#include <vhtCyberGlove.h>
-#include <vhtCyberGloveEmulator.h>
-//#include <vhtCyberGrasp.h>
-//#include <vhtCyberTouch.h>
-#include <vhtDevice.h>
-//#include <vhtDeviceTypes.h>
-//#include <vhtGenHandModel.h>
-#include <vhtGlove.h>
-#include <vhtGloveData.h>
-//#include <vhtHandMaster.h>
-//#include <vhtHapticEffect.h>
-#include <vhtIOConn.h>
-//#include <vhtNegIndex.h>
-//#include <vhtNullPtr.h>
-//#include <vhtOutOfBound.h>
-#include <vhtQuaternion.h>
 //#include <vhtTracker.h>
 //#include <vhtTrackerData.h>
 //#include <vhtTrackerEmulator.h>
+//#include <vhtCyberGrasp.h>
+//#include <vhtCyberTouch.h>
+//#include <vhtDeviceTypes.h>
+//#include <vhtGenHandModel.h>
+//#include <vhtHandMaster.h>
+//#include <vhtHapticEffect.h>
+//#include <vhtNegIndex.h>
+//#include <vhtNullPtr.h>
+//#include <vhtOutOfBound.h>
+
+// The necessary header files
+
+#include <vht.h>
+#include <vhtCyberGlove.h>
+#include <vhtCyberGloveEmulator.h>
+#include <vhtDevice.h>
+#include <vhtGlove.h>
+#include <vhtGloveData.h>
+#include <vhtIOConn.h>
+#include <vhtQuaternion.h>
 #include <vhtTransform3D.h>
 #include <vhtUnimpl.h>
 #include <vhtVector3d.h>
 #include <vhtKey.h>
+
 // Turn off the following to use a tracker emulator instead of
 // a real tracker
 #define USE_REAL_TRACKER
+
+//class CyberGloveTest {
+//	public:
+//		CyberGloveTest(const std::string new_portName, int new_baudRate);
+//	
+//	private:
+//		 const std::string portName;
+//		 int baudRate;
+//};
+//
+//CyberGloveTest::CyberGloveTest(const std::string new_portName, int new_baudRate)
+//	: portName(new_portName), baudRate(new_baudRate) {
+//	baudRate = new_baudRate;
+//
+//}
+
+
 //
 // Main function for the demo.
 //
-int main(int argc, char* argv[])
+void Source()
 {
-	// Specifying the address of the glove
+	// Specify the address of the glove if necessary
 	//vhtIOConn gloveAddress("cyberglove1", "localhost", "12345", "com5", "115200");
 	// Connect to the glove (with default address and parameters)
 	vhtIOConn* gloveDict = vhtIOConn::getDefault(vhtIOConn::glove);
 
-	// Expand the CyberGlove connection to the CyberTouch capabilities
 	//vhtCyberGlove* glove = new vhtCyberGlove(&gloveAddress);
 	vhtCyberGlove* glove = new vhtCyberGlove(gloveDict);
 
-	
-	// Connect to the tracker 
-#if defined( USE_REAL_TRACKER )
-	//vhtIOConn* trackerDict = vhtIOConn::getDefault(vhtIOConn::tracker);
-	//vhtTracker* tracker = new vhtTracker(trackerDict);
-#else
-	vhtTrackerEmulator* tracker = new vhtTrackerEmulator();
-#endif
 
 	//
 	// The demo loop: get the finger angles from the glove.
@@ -82,9 +102,11 @@ int main(int argc, char* argv[])
 	vhtVector3d axis;
 	double baseT = glove->getLastUpdateTime();
 	//glove->update();
-	
+	//restrict the number of update for each loop to 50 for testing 
+	int updateTimes = 0;
 	while (true)
 	{
+		updateTimes++;
 		// update data from the physical device
 		glove->update();
 		//tracker->update();
@@ -98,27 +120,42 @@ int main(int argc, char* argv[])
 			cout << finger << " ";
 			for (int joint = 0; joint < GHM::nbrJoints; joint++)
 			{
-				cout << glove->getData((GHM::Fingers)finger, (GHM::Joints)joint
-				) << " ";
+				cout << glove->getData((GHM::Fingers)finger, (GHM::Joints)joint) << " ";
 			}
 			cout << "\n";
 		}
-		// Get tracker data as a vhtTransform3D in world frame
-		//tracker->getLogicalDevice(0)->getTransform(&trackerXForm);
-		// print translation and orientaion
-		//trackerXForm.getTranslation(position);
-		//trackerXForm.getRotation(orientation);
-		//orientation.getAxis(axis);
-		//cout << "Tracker: \n";
-		//cout << position.x << " " << position.y << " " << position.z << "\n";
-		//cout << axis.x << " " << axis.y << " " << axis.z << " " <<
-		//	orientation.getAngle() << "\n";
 		// wait for 100ms
 #if defined(_WIN32)
 		Sleep(100);
 #else
 		usleep(100000);
 #endif
+		if (updateTimes >= 50) break;
 	}
-	return 0;
+}
+
+/* The gateway function. */
+void mexFunction(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[]) {
+
+	/* Check for proper number of arguments */
+	/*if (nrhs != 2) {
+		mexErrMsgIdAndTxt("MATLAB:mexcpp:nargin", "MEXCPP requires two input arguments.");
+	}
+	if (nlhs != 0) {
+		mexErrMsgIdAndTxt("MATLAB:mexcpp:nargout", "MEXCPP requires no output argument.");
+	}*/
+
+	/* Check if the input is of proper type */
+	//if (!mxIsDouble(prhs[0]) || // not double
+	//	mxIsComplex(prhs[0]) || // or complex
+	//	!mxIsScalar(prhs[0])) { // or not scalar
+	//	mexErrMsgIdAndTxt("MATLAB:mexcpp:typeargin", "First argument has to be double scalar.");
+	//}
+	//if (!mxIsDouble(prhs[1]) || // not double
+	//	mxIsComplex(prhs[1]) || // or complex
+	//	!mxIsScalar(prhs[1])) { // or not scalar
+	//	mexErrMsgIdAndTxt("MATLAB:mexcpp:typeargin", "Second argument has to be double scalar.");
+	//}
+
+	Source();
 }
