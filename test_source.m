@@ -16,13 +16,20 @@ libName1 = "vhtCoreLib";
 libName2 = "vhtDeviceLib";
 %% specifying parameters for mex command
 ipath = ['-I' hFilesPath];
-mex "-IC:\Users\yifei\OneDrive\virtual hand files\CyberGlove Systems VirtualHand Software\CyberGlove Systems\VirtualHand SDK\include\vhandtk"...
+% mex "-IC:\Users\yifei\OneDrive\virtual hand files\CyberGlove Systems VirtualHand Software\CyberGlove Systems\VirtualHand SDK\include\vhandtk"...
+%     "-LC:\Users\yifei\OneDrive\virtual hand files\CyberGlove Systems VirtualHand Software\CyberGlove Systems\VirtualHand SDK\lib\winnt_x64\Release" ...
+%     -lCGS_VirtualHandCore -lCGS_VirtualHandDevice Source.cpp
+mex -R2018a "-IC:\Users\yifei\OneDrive\virtual hand files\CyberGlove Systems VirtualHand Software\CyberGlove Systems\VirtualHand SDK\include\vhandtk"...
     "-LC:\Users\yifei\OneDrive\virtual hand files\CyberGlove Systems VirtualHand Software\CyberGlove Systems\VirtualHand SDK\lib\winnt_x64\Release" ...
-    -lCGS_VirtualHandCore -lCGS_VirtualHandDevice Source.cpp
+    -lCGS_VirtualHandCore -lCGS_VirtualHandDevice Source_mxArray_1.cpp
 %% generate library interface to C++
 % turns out that we cannot simply generate all library definitions in a for loop
 % have to perfrom lib-gen manually.
 % clibgen.generateLibraryDefinition(fullfile(hFilesPath, "vht.h"),"ReturnCArrays",false, ... % treat output as MATLAB arrays
 %     "OverwriteExistingDefinitionFiles",true);
 %% run the mex file
-Source();
+n=0;
+while n<5000
+    Source_mxArray_1();
+    n=n+1;
+end

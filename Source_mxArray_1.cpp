@@ -17,11 +17,12 @@ History:
 #endif
 #include <iostream>
 #include <string>
+#include <array>
+#include "matrix.h"
 using std::cout;
 // matlab engine header files
 //#include "MatlabDataArray.hpp"
 //#include "MatlabEngine.hpp"
-
 // matlab mex header files
 #include "mex.h"
 //#include "mexAdapter.hpp"
@@ -61,10 +62,14 @@ using std::cout;
 #include <vhtVector3d.h>
 #include <vhtKey.h>
 
-//
-// Source function for the demo.
-//
-void Source()
+// Turn off the following to use a tracker emulator instead of
+// a real tracker
+#define USE_REAL_TRACKER
+static int rows;
+static int cols;
+
+/* Source function for the demo.*/
+double* Source()
 {
 	// Specify the address of the glove if necessary
 	//vhtIOConn gloveAddress("cyberglove1", "localhost", "12345", "com5", "115200");
@@ -83,47 +88,51 @@ void Source()
 	vhtQuaternion orientation;
 	vhtVector3d axis;
 	double baseT = glove->getLastUpdateTime();
-	//glove->update();
-	//restrict the number of update for each loop to 50 for testing 
-	int updateTimes = 0;
-	while (true)
-	{
-		updateTimes++;
-		// update data from the physical device
-		glove->update();
-		//tracker->update();
-		// Get update time delta
-		cout << "deltaT: " << glove->getLastUpdateTime() - baseT <<"\n";
-		// Get joint angles
-		cout << "Glove: \n";
-		for (int finger = 0; finger < GHM::nbrFingers; finger++)
-		{
-			cout << finger << " ";
-			for (int joint = 0; joint < GHM::nbrJoints; joint++)
-			{
-				cout << glove->getData((GHM::Fingers)finger, (GHM::Joints)joint) << " ";
 
-			}
-			cout << "\n";
+	// update data from the physical device
+	glove->update();
+	// create an m x n double precision Array for Data Storage
+	const int m = GHM::nbrFingers;
+	const int n = GHM::nbrJoints;
+
+	rows = GHM::nbrFingers;
+	cols = GHM::nbrJoints;
+	static double GloveData[m][n];
+	double* ptrGloveData = GloveData[0];
+	//GloveData = mxCreateDoubleMatrix(m, n, mxREAL);
+	// Get update time delta
+	cout << "deltaT: " << glove->getLastUpdateTime() - baseT <<
+		"\n";
+	// Get joint angles
+	cout << "Glove: \n";
+	for (int finger = 0; finger < GHM::nbrFingers; finger++)
+	{
+		cout << finger << " ";
+		for (int joint = 0; joint < GHM::nbrJoints; joint++)
+		{
+			// Store the data in an array
+			GloveData[finger][joint] = glove->getData((GHM::Fingers)finger, (GHM::Joints)joint);
+			//glove->getData((GHM::Fingers)finger, (GHM::Joints)joint);
+			cout << GloveData[finger][joint] << " ";
 		}
-		// wait for 100ms
-#if defined(_WIN32)
-		Sleep(100);
-#else
-		usleep(100000);
-#endif
-		if (updateTimes >= 50) break;
+		cout << "Data stored" << "\n";
 	}
+	// wait for 100ms
+#if defined(_WIN32)
+	Sleep(100);
+#else
+	usleep(100000);
+#endif
+
+	return ptrGloveData;
 }
 
 /* The gateway function. */
+/* This program outputs the joint angle data to Matlab workspace */
 void mexFunction(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[]) {
 
 	/* Check for proper number of arguments */
-	/* This program takes zero input arguments
-	 This program outputs the joint angle data to Matlab workspace
-	 Options for Output Data Type:
-	 double precision Array, Cell Array*/
+	// This program takes zero input arguments
 	if (nrhs != 0) {
 		mexErrMsgIdAndTxt("MATLAB:Source:maxrhs", "SOURCE requires zero input arguments.");
 	}
@@ -131,5 +140,17 @@ void mexFunction(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[]) {
 		mexErrMsgIdAndTxt("MATLAB:Source:nargout", "Too many output arguments.");
 	}
 
-	Source();
+	double* ptrGloveData;
+	ptrGloveData = Source();
+	//initialize mxArray with GloveData
+	mxDouble* dynamicGloveData;        // pointer to dynamic data
+	mwSize index;
+	dynamicGloveData = (double*) mxMalloc((rows * cols) * sizeof(double));
+	for (index = 0; index < (rows * cols); index++) {
+		dynamicGloveData[index] = ptrGloveData[index];
+	}
+	
+	plhs[0] = mxCreateNumericMatrix((mwSize)rows, (mwSize)cols, mxDOUBLE_CLASS, mxREAL);
+	mxSetDoubles(plhs[0], dynamicGloveData);
+	return;
 }
