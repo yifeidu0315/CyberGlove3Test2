@@ -28,8 +28,3 @@ mex -R2018a "-IC:\Users\yifei\OneDrive\virtual hand files\CyberGlove Systems Vir
 % clibgen.generateLibraryDefinition(fullfile(hFilesPath, "vht.h"),"ReturnCArrays",false, ... % treat output as MATLAB arrays
 %     "OverwriteExistingDefinitionFiles",true);
 %% run the mex file
-n=0;
-while n<5000
-    Source_mxArray_1();
-    n=n+1;
-end

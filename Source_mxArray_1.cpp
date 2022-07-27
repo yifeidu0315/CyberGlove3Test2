@@ -115,8 +115,9 @@ double* Source()
 			//glove->getData((GHM::Fingers)finger, (GHM::Joints)joint);
 			cout << GloveData[finger][joint] << " ";
 		}
-		cout << "Data stored" << "\n";
+		cout << "\n";
 	}
+	cout << "Data stored" << "\n";
 	// wait for 100ms
 #if defined(_WIN32)
 	Sleep(100);
@@ -145,8 +146,9 @@ void mexFunction(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[]) {
 	//initialize mxArray with GloveData
 	mxDouble* dynamicGloveData;        // pointer to dynamic data
 	mwSize index;
-	dynamicGloveData = (double*) mxMalloc((rows * cols) * sizeof(double));
-	for (index = 0; index < (rows * cols); index++) {
+	int size = rows * cols;
+	dynamicGloveData = (double*) mxMalloc(size * sizeof(double));
+	for (index = 0; index < size; index++) {
 		dynamicGloveData[index] = ptrGloveData[index];
 	}
 	
