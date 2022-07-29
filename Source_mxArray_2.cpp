@@ -87,7 +87,7 @@ double* Source()
 	vhtVector3d position;
 	vhtQuaternion orientation;
 	vhtVector3d axis;
-	double baseT = glove->getLastUpdateTime();
+	//double baseT = glove->getLastUpdateTime();
 
 	// update data from the physical device
 	glove->update();
@@ -97,17 +97,19 @@ double* Source()
 
 	rows = GHM::nbrFingers;
 	cols = GHM::nbrJoints;
-	static double GloveData[m][n];
+	static double GloveData[m + 1][n];
 	double* ptrGloveData = GloveData[0];
-	//GloveData = mxCreateDoubleMatrix(m, n, mxREAL);
-	// Get update time delta
-	cout << "deltaT: " << glove->getLastUpdateTime() - baseT <<"\n";
+	// Get update time and other data
+	GloveData[m][0] = glove->getLastUpdateTime();
+	GloveData[m][1] = glove->getConnectStatus();
+	GloveData[m][2] = glove->getDimensionRange();
+	cout << "last Update Time: " << GloveData[m][0] << "\n";
 	// Get joint angles
 	cout << "Glove: \n";
-	for (int finger = 0; finger < GHM::nbrFingers; finger++)
+	for (int finger = 0; finger < m; finger++)
 	{
 		cout << finger << " ";
-		for (int joint = 0; joint < GHM::nbrJoints; joint++)
+		for (int joint = 0; joint < n; joint++)
 		{
 			// Store the data in an array
 			GloveData[finger][joint] = glove->getData((GHM::Fingers)finger, (GHM::Joints)joint);
@@ -145,12 +147,12 @@ void mexFunction(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[]) {
 	//initialize mxArray with GloveData
 	mxDouble* dynamicGloveData;        // pointer to dynamic data
 	mwSize index;
-	int size = rows * cols;
-	dynamicGloveData = (double*) mxMalloc(size * sizeof(double));
+	int size = (rows + 1) * cols;
+	dynamicGloveData = (double*)mxMalloc(size * sizeof(double));
 	for (index = 0; index < size; index++) {
 		dynamicGloveData[index] = ptrGloveData[index];
 	}
-	
+
 	plhs[0] = mxCreateNumericMatrix((mwSize)rows, (mwSize)cols, mxDOUBLE_CLASS, mxREAL);
 	mxSetDoubles(plhs[0], dynamicGloveData);
 	return;
