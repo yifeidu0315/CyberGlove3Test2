@@ -5,7 +5,6 @@ size_m = 6;
 size_n = 3;
 % delta time since the first update
 deltaT = 0;
-baseT = 0;
 while n<5000
     %% Call the Mex file and obtain Glove Data 1 time
     iniData = Source_mxArray_2();
@@ -22,13 +21,10 @@ while n<5000
             GloveData_last(index_m, index_n) = iniData_linear(index);
         end
     end
-    % initialize the base time for reference
-    if n == 0
-        baseT = GloveData_last(size_m, 1);
+    if n = 1
+        deltaT = 
     end
-    % determine delta time
-    deltaT = GloveData_last(size_m, 1) - baseT;
-    % merge the matrix together to combine data
+
     GloveData_full = cat(3, GloveData_full, GloveData_last);
     n=n+1;
 
