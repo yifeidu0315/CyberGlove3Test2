@@ -1,3 +1,4 @@
+clear;
 productPath = "C:\Users\yifei\OneDrive\virtual hand files\rombokasCybergloveCode\rombokasCybergloveCode\CyberGlove3Test2\CyberGlove3Test2";
 cd(productPath);
 
@@ -21,7 +22,7 @@ ipath = ['-I' hFilesPath];
 %     -lCGS_VirtualHandCore -lCGS_VirtualHandDevice Source.cpp
 mex -R2018a "-IC:\Users\yifei\OneDrive\virtual hand files\CyberGlove Systems VirtualHand Software\CyberGlove Systems\VirtualHand SDK\include\vhandtk"...
     "-LC:\Users\yifei\OneDrive\virtual hand files\CyberGlove Systems VirtualHand Software\CyberGlove Systems\VirtualHand SDK\lib\winnt_x64\Release" ...
-    -lCGS_VirtualHandCore -lCGS_VirtualHandDevice Source_mxArray_2.cpp
+    -lCGS_VirtualHandCore -lCGS_VirtualHandDevice Source_mxArray_3.cpp
 %% generate library interface to C++
 % turns out that we cannot simply generate all library definitions in a for loop
 % have to perfrom lib-gen manually.

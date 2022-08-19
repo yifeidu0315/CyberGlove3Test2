@@ -1,3 +1,4 @@
+clear;
 %% Test Loop
 n=0;
 % size of the returned matrix
@@ -6,28 +7,37 @@ size_n = 3;
 % delta time since the first update
 deltaT = 0;
 baseT = 0;
-while n<5000
+
+GloveData_full = zeros(size_m, size_n, 1);
+GloveData_last = zeros(size_m, size_n, 1);
+while n < 20
     %% Call the Mex file and obtain Glove Data 1 time
-    iniData = Source_mxArray_2();
+    iniData = Source_mxArray_3();
     iniData_linear = iniData(:);
+    disp("Data Linearized");
+    
     %% Format the Data into a 6x3 double precision array
     % for now we are not sure what is the cause of the incorrect array
     % formatting in matlab workspace. This is only a temporary fix as the 
     % time efficiency of the program is a concern.
-    GloveData_last = zeros(size_m, size_n);
-    GloveData_full = zeros(size_m, size_n, 1);
+    
+    index = 0;
     for index_m = 1 : size_m
         for index_n = 1 : size_n
-            index = index_m * index_n;
-            GloveData_last(index_m, index_n) = iniData_linear(index);
+            index = index + 1;
+            % disp(index);
+            GloveData_last(index_m, index_n, 1) = iniData_linear(index);
+            % disp(iniData_linear(index));
+
         end
     end
+    disp("Data from last pull stored in array 'GloveData_last'");
     % initialize the base time for reference
     if n == 0
-        baseT = GloveData_last(size_m, 1);
+        baseT = GloveData_last(size_m, 1, 1);
     end
     % determine delta time
-    deltaT = GloveData_last(size_m, 1) - baseT;
+    deltaT = GloveData_last(size_m, 1, 1) - baseT;
     % merge the matrix together to combine data
     GloveData_full = cat(3, GloveData_full, GloveData_last);
     n=n+1;

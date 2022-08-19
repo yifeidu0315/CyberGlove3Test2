@@ -95,14 +95,16 @@ double* Source()
 	const int m = GHM::nbrFingers;
 	const int n = GHM::nbrJoints;
 
-	rows = GHM::nbrFingers;
+	rows = (GHM::nbrFingers) + 1;
 	cols = GHM::nbrJoints;
 	static double GloveData[m + 1][n];
 	double* ptrGloveData = GloveData[0];
 	// Get update time and other data
 	GloveData[m][0] = glove->getLastUpdateTime();
-	GloveData[m][1] = glove->getConnectStatus();
-	GloveData[m][2] = glove->getDimensionRange();
+	GloveData[m][1] = 0;
+	GloveData[m][2] = 0;
+	//GloveData[m][1] = glove->getConnectStatus();
+	//GloveData[m][2] = glove->getDimensionRange();
 	cout << "last Update Time: " << GloveData[m][0] << "\n";
 	// Get joint angles
 	cout << "Glove: \n";
@@ -120,6 +122,7 @@ double* Source()
 	}
 	cout << "Data stored" << "\n";
 	// wait for 100ms
+	Sleep(100);
 #if defined(_WIN32)
 	Sleep(100);
 #else
@@ -147,7 +150,7 @@ void mexFunction(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[]) {
 	//initialize mxArray with GloveData
 	mxDouble* dynamicGloveData;        // pointer to dynamic data
 	mwSize index;
-	int size = (rows + 1) * cols;
+	int size = rows * cols;
 	dynamicGloveData = (double*)mxMalloc(size * sizeof(double));
 	for (index = 0; index < size; index++) {
 		dynamicGloveData[index] = ptrGloveData[index];
