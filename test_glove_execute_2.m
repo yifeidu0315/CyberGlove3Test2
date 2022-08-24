@@ -2,7 +2,7 @@ clear;
 %% Test Loop
 n=0;
 % size of the returned matrix
-size_m = 6;
+size_m = 5;
 size_n = 3;
 % delta time since the first update
 deltaT = 0;
@@ -10,7 +10,7 @@ baseT = 0;
 
 GloveData_full = zeros(size_m, size_n, 1);
 GloveData_last = zeros(size_m, size_n, 1);
-while n < 20
+while n < 30
     %% Call the Mex file and obtain Glove Data 1 time
     iniData = Source_mxArray_3();
     iniData_linear = iniData(:);

@@ -1,9 +1,8 @@
 /********************************************************************
-Initialize a connection and update joint angle data from CyberGlove 
--Update data only one time
-* mex in test_source.m
-* call in test_glove_execute_2.m
-2022.8.20
+Initialize a connection to CyberGlove using VirtualHand API
+* mex in test_source_1.m
+* call in test_glove_execute.m
+2022.8.24
 Jeff Du
 ********************************************************************/
 #if defined( _WIN32 )
@@ -67,16 +66,18 @@ static vhtCyberGlove* glove = NULL; // an glove object for connection to the phy
 
 
 void cleanup(void) {
-	
+	if (glove != NULL)
+		delete glove;
 
 	glove = NULL;
 }
-/* Source function for the demo.*/
-double* Source()
+
+/* Initialization function for the demo.*/
+void Initialization(void)
 {
 	// Specify the address of the glove if necessary
 	//vhtIOConn gloveAddress("cyberglove1", "localhost", "12345", "com5", "115200");
-	
+
 	vhtIOConn* gloveDict = vhtIOConn::getDefault(vhtIOConn::glove); // Connect to the glove (with default address and parameters)
 
 	//vhtCyberGlove* glove = new vhtCyberGlove(&gloveAddress);
@@ -90,41 +91,6 @@ double* Source()
 	vhtVector3d position;
 	vhtQuaternion orientation;
 	vhtVector3d axis;
-
-	// update data from the physical device
-	glove->update();
-	// create an m x n double precision Array for Data Storage
-	const int m = GHM::nbrFingers;
-	const int n = GHM::nbrJoints;
-
-	rows = (GHM::nbrFingers);
-	cols = GHM::nbrJoints;
-	static double GloveData[m][n];
-	double* ptrGloveData = GloveData[0];
-	// Get update time and other data -not implemented
-
-	// Get joint angles
-	cout << "Glove: \n";
-	for (int finger = 0; finger < m; finger++)
-	{
-		cout << finger << " ";
-		for (int joint = 0; joint < n; joint++)
-		{
-			// Store the data in an array
-			GloveData[finger][joint] = glove->getData((GHM::Fingers)finger, (GHM::Joints)joint);
-			cout << GloveData[finger][joint] << " ";
-		}
-		cout << "\n";
-	}
-	cout << "Data stored" << "\n";
-	// wait for 100ms
-#if defined(_WIN32)
-	Sleep(100);
-#else
-	usleep(100000);
-#endif
-	glove->~vhtCyberGlove();
-	return ptrGloveData;
 }
 
 /* The gateway function. */
@@ -140,22 +106,11 @@ void mexFunction(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[]) {
 		mexErrMsgIdAndTxt("MATLAB:Source:nargout", "Too many output arguments.");
 	}
 
-	double* ptrGloveData;
-	ptrGloveData = Source();
+	Initialization();
 	// clean up
 	mexAtExit(cleanup);
 
-	//initialize mxArray with GloveData
-	mxDouble* dynamicGloveData;        // pointer to dynamic data
-	mwSize index;
-	int size = rows * cols;
-	dynamicGloveData = (double*)mxMalloc(size * sizeof(double));
-	for (index = 0; index < size; index++) {
-		dynamicGloveData[index] = ptrGloveData[index];
-	}
 
-	plhs[0] = mxCreateNumericMatrix((mwSize)rows, (mwSize)cols, mxDOUBLE_CLASS, mxREAL);
-	mxSetDoubles(plhs[0], dynamicGloveData);
-	mxFree(dynamicGloveData);       //free the allocated space
+	plhs[0] = NULL;
 	return;
 }

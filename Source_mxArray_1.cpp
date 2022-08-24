@@ -1,14 +1,11 @@
 /********************************************************************
-FILE: $Id: glove.cpp,v 1.1 2000/05/30 01:15:49 ullrich Exp $
-AUTHOR: Chris Ullrich.
-DATE: 1999/05/12.
-Description: Base demonstration.
-Show how to connect to a glove and tracker, and then how to update and extract
-sensor data from the devices.
-History:
- 1999/05/12 [CU]: Creation.
- 1999/06/27 [HD]: Remodelling for a Irix/WinNT portable version.
- -- COPYRIGHT VIRTUAL TECHNOLOGIES, INC. 1999 --
+Initialize a connection and update joint angle data from CyberGlove
+Update data multiple times
+* not tested
+* mex in test_source.m
+* call in test_glove_execute_2.m
+2022.8.20
+Jeff Du
 ********************************************************************/
 #if defined( _WIN32 )
 #include <windows.h>
@@ -67,62 +64,82 @@ using std::cout;
 #define USE_REAL_TRACKER
 static int rows;
 static int cols;
+static vhtCyberGlove* glove = NULL; // an glove object for connection to the physical CyberGlove3 device
 
-/* Source function for the demo.*/
-double* Source()
-{
+
+void cleanup(void) {
+	if (glove != NULL)
+		delete glove;
+
+	glove = NULL;
+}
+/* making connection with the glove*/
+vhtCyberGlove* new_connection(void) {
 	// Specify the address of the glove if necessary
 	//vhtIOConn gloveAddress("cyberglove1", "localhost", "12345", "com5", "115200");
-	// Connect to the glove (with default address and parameters)
-	vhtIOConn* gloveDict = vhtIOConn::getDefault(vhtIOConn::glove);
+
+	vhtIOConn* gloveDict = vhtIOConn::getDefault(vhtIOConn::glove); // Connect to the glove (with default address and parameters)
 
 	//vhtCyberGlove* glove = new vhtCyberGlove(&gloveAddress);
-	vhtCyberGlove* glove = new vhtCyberGlove(gloveDict);
+	glove = new vhtCyberGlove(gloveDict);
 
 
-	//
-	// The demo loop: get the finger angles from the glove.
-	//
+	
 	vhtTransform3D trackerXForm;
 	vhtVector3d position;
 	vhtQuaternion orientation;
 	vhtVector3d axis;
-	double baseT = glove->getLastUpdateTime();
+
+	return glove;
+}
+
+double* data_retrieval(vhtCyberGlove* glove)
+{
+	// loop for certain number of times
+	// create an m x n double precision Array for Data Storage
+	const int m = 5; //GHM::nbrFingers;
+	const int n = 3; //GHM::nbrJoints;
+
+	static double GloveData[m + 1][n];
+	double* ptrGloveData = GloveData[0];
+	//double (*ptrGloveData)[m + 1][n][num_loop] = &GloveData;
+
 
 	// update data from the physical device
 	glove->update();
-	// create an m x n double precision Array for Data Storage
-	const int m = GHM::nbrFingers;
-	const int n = GHM::nbrJoints;
+		
 
-	rows = GHM::nbrFingers;
-	cols = GHM::nbrJoints;
-	static double GloveData[m][n];
-	double* ptrGloveData = GloveData[0];
-	//GloveData = mxCreateDoubleMatrix(m, n, mxREAL);
-	// Get update time delta
-	cout << "deltaT: " << glove->getLastUpdateTime() - baseT <<"\n";
+	rows = (m)+1;
+	cols = n;
+		
+	// Get update time and other data
+	
+	GloveData[m][0] = glove->getLastUpdateTime();
+	GloveData[m][1] = 0;
+	GloveData[m][2] = 0;
+	cout << "last Update Time: " << GloveData[m][0] << "\n";
 	// Get joint angles
-	cout << "Glove: \n";
-	for (int finger = 0; finger < GHM::nbrFingers; finger++)
+	//cout << "Glove: \n";
+	for (int finger = 0; finger < m; finger++)
 	{
 		cout << finger << " ";
-		for (int joint = 0; joint < GHM::nbrJoints; joint++)
+		for (int joint = 0; joint < n; joint++)
 		{
 			// Store the data in an array
 			GloveData[finger][joint] = glove->getData((GHM::Fingers)finger, (GHM::Joints)joint);
-			//glove->getData((GHM::Fingers)finger, (GHM::Joints)joint);
-			cout << GloveData[finger][joint] << " ";
+			//cout << GloveData[finger][joint][] << " ";
 		}
-		cout << "\n";
+		//cout << "\n";
 	}
 	cout << "Data stored" << "\n";
 	// wait for 100ms
 #if defined(_WIN32)
-	Sleep(100);
+		Sleep(100);
 #else
-	usleep(100000);
+		usleep(100000);
 #endif
+
+	
 
 	return ptrGloveData;
 }
@@ -140,18 +157,33 @@ void mexFunction(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[]) {
 		mexErrMsgIdAndTxt("MATLAB:Source:nargout", "Too many output arguments.");
 	}
 
+
 	double* ptrGloveData;
-	ptrGloveData = Source();
+	vhtCyberGlove* glove = new_connection();
+	int num_loop = 50;
+
 	//initialize mxArray with GloveData
 	mxDouble* dynamicGloveData;        // pointer to dynamic data
 	mwSize index;
-	int size = rows * cols;
-	dynamicGloveData = (double*) mxMalloc(size * sizeof(double));
-	for (index = 0; index < size; index++) {
-		dynamicGloveData[index] = ptrGloveData[index];
+	int size = rows * cols * num_loop;
+
+	dynamicGloveData = (double*)mxMalloc(size * sizeof(double));
+
+	for (int i = 0; i < num_loop; i++) {      //loop for num_loop times to retrieve data
+		ptrGloveData = data_retrieval(glove);
+		//after each retrieval, store data into dynamicGloveData array
+		for (index = (mwSize)i * ((mwSize)rows * (mwSize)cols); index < ((mwSize)i + 1) * ((mwSize)rows * (mwSize)cols); index++) {
+			dynamicGloveData[index] = ptrGloveData[index];
+		}
 	}
-	
-	plhs[0] = mxCreateNumericMatrix((mwSize)rows, (mwSize)cols, mxDOUBLE_CLASS, mxREAL);
+
+	mexAtExit(cleanup);        // clean up
+	const int ndim = 3;
+	int dim[ndim] = {rows, cols, num_loop};
+	plhs[0] = mxCreateNumericArray((mwSize)ndim, (const mwSize*)dim, mxDOUBLE_CLASS, mxREAL);
 	mxSetDoubles(plhs[0], dynamicGloveData);
+	// plhs[0] = mxCreateNumericMatrix((mwSize)rows, (mwSize)cols, mxDOUBLE_CLASS, mxREAL);
+	// mxSetDoubles(plhs[0], dynamicGloveData);
+	mxFree(dynamicGloveData);       //free the allocated space
 	return;
 }

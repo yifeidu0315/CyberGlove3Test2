@@ -144,6 +144,7 @@
   <ItemGroup>
     <ClCompile Include="Source.cpp" />
     <ClCompile Include="matlabengine_test.cpp" />
+    <ClCompile Include="Source_initialization.cpp" />
     <ClCompile Include="Source_mxArray_1.cpp" />
     <ClCompile Include="Source_mxArray_2.cpp" />
     <ClCompile Include="Source_mxArray_3.cpp" />

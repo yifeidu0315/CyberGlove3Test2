@@ -1,14 +1,10 @@
 /********************************************************************
-FILE: $Id: glove.cpp,v 1.1 2000/05/30 01:15:49 ullrich Exp $
-AUTHOR: Chris Ullrich.
-DATE: 1999/05/12.
-Description: Base demonstration.
-Show how to connect to a glove and tracker, and then how to update and extract
-sensor data from the devices.
-History:
- 1999/05/12 [CU]: Creation.
- 1999/06/27 [HD]: Remodelling for a Irix/WinNT portable version.
- -- COPYRIGHT VIRTUAL TECHNOLOGIES, INC. 1999 --
+Update joint angle data from CyberGlove once after initialization using VirtualHand API
+* call after calling Source_initialization.cpp
+* mex in test_source_1.m
+* call in test_glove_execute.m
+2022.8.24
+Jeff Du
 ********************************************************************/
 #if defined( _WIN32 )
 #include <windows.h>
@@ -67,18 +63,22 @@ using std::cout;
 #define USE_REAL_TRACKER
 static int rows;
 static int cols;
+static vhtCyberGlove* glove = NULL; // an glove object for connection to the physical CyberGlove3 device
 
+void cleanup(void) {
+	if (glove != NULL)
+		delete glove;
+
+	glove = NULL;
+}
 /* Source function for the demo.*/
 double* Source()
 {
-	// Specify the address of the glove if necessary
-	//vhtIOConn gloveAddress("cyberglove1", "localhost", "12345", "com5", "115200");
-	// Connect to the glove (with default address and parameters)
+	// Find an existing connection to the IOConn
 	vhtIOConn* gloveDict = vhtIOConn::getDefault(vhtIOConn::glove);
-
-	//vhtCyberGlove* glove = new vhtCyberGlove(&gloveAddress);
-	vhtCyberGlove* glove = new vhtCyberGlove(gloveDict);
-
+	cout << "default IOConn obtained";
+	// create a glove object and make connection
+	glove->connect();
 
 	//
 	// The demo loop: get the finger angles from the glove.
@@ -87,7 +87,6 @@ double* Source()
 	vhtVector3d position;
 	vhtQuaternion orientation;
 	vhtVector3d axis;
-	//double baseT = glove->getLastUpdateTime();
 
 	// update data from the physical device
 	glove->update();
@@ -115,7 +114,6 @@ double* Source()
 		{
 			// Store the data in an array
 			GloveData[finger][joint] = glove->getData((GHM::Fingers)finger, (GHM::Joints)joint);
-			//glove->getData((GHM::Fingers)finger, (GHM::Joints)joint);
 			cout << GloveData[finger][joint] << " ";
 		}
 		cout << "\n";
@@ -147,6 +145,9 @@ void mexFunction(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[]) {
 
 	double* ptrGloveData;
 	ptrGloveData = Source();
+	// clean up
+	mexAtExit(cleanup);
+
 	//initialize mxArray with GloveData
 	mxDouble* dynamicGloveData;        // pointer to dynamic data
 	mwSize index;
@@ -158,5 +159,6 @@ void mexFunction(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[]) {
 
 	plhs[0] = mxCreateNumericMatrix((mwSize)rows, (mwSize)cols, mxDOUBLE_CLASS, mxREAL);
 	mxSetDoubles(plhs[0], dynamicGloveData);
+	mxFree(dynamicGloveData);       //free the allocated space
 	return;
 }
