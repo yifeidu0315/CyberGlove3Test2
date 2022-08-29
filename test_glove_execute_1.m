@@ -12,9 +12,8 @@ GloveData_full = zeros(size_m, size_n, 1);
 GloveData_last = zeros(size_m, size_n, 1);
 while n < 30
     %% Call the Mex file and obtain Glove Data 1 time
-    iniData = Source_mxArray_3();
-    iniData_linear = iniData(:);
-    disp("Data Linearized");
+    iniData_linear = Source_mxArray_3();
+    %% disp("Data Linearized");
     
     %% Format the Data into a 5x3 double precision array
     % for now we are not sure what is the cause of the incorrect array

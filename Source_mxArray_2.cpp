@@ -159,6 +159,6 @@ void mexFunction(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[]) {
 
 	plhs[0] = mxCreateNumericMatrix((mwSize)rows, (mwSize)cols, mxDOUBLE_CLASS, mxREAL);
 	mxSetDoubles(plhs[0], dynamicGloveData);
-	mxFree(dynamicGloveData);       //free the allocated space
+	// mxFree(dynamicGloveData);       // free the allocated space might cause problems
 	return;
 }
