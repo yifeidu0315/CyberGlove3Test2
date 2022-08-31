@@ -116,12 +116,12 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>C:\Users\yifei\OneDrive\virtual hand files\CyberGlove Systems VirtualHand Software\CyberGlove Systems\VirtualHand SDK\include\vhandtk;C:\Program Files\MATLAB\R2022a\extern\include;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\Motorlab PC 6\Desktop\VirtualHand SDK\include\vhandtk;C:\Program Files\MATLAB\R2022a\extern\include;</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>C:\Users\yifei\OneDrive\virtual hand files\CyberGlove Systems VirtualHand Software\CyberGlove Systems\VirtualHand SDK\lib\winnt_x64\Release;C:\Program Files\MATLAB\R2022a\extern\bin\win64</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>C:\Users\Motorlab PC 6\Desktop\VirtualHand SDK\lib\winnt_x64\Release;C:\Program Files\MATLAB\R2022a\extern\bin\win64</AdditionalLibraryDirectories>
       <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;CGS_VirtualHandDevice.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
