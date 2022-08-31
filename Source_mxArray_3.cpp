@@ -75,11 +75,11 @@ void cleanup(void) {
 double* Source()
 {
 	// Specify the address of the glove if necessary
-	// vhtIOConn gloveAddress("cyberglove1", "localhost", "12345", "com5", "115200");
+	//vhtIOConn gloveAddress("cyberglove1", "localhost", "12345", "com5", "115200");
 	
 	vhtIOConn* gloveDict = vhtIOConn::getDefault(vhtIOConn::glove); // Connect to the glove (with default address and parameters)
 
-	// vhtCyberGlove* glove = new vhtCyberGlove(&gloveAddress);
+	//vhtCyberGlove* glove = new vhtCyberGlove(&gloveAddress);
 	glove = new vhtCyberGlove(gloveDict);
 
 
@@ -118,12 +118,10 @@ double* Source()
 	}
 	cout << "Data stored" << "\n";
 	// wait for 100ms
-#if defined(_WIN32)
-	Sleep(100);
-#else
-	usleep(100000);
-#endif
-	glove->~vhtCyberGlove(); //disconnect and delete the glove object
+
+	//Sleep(100);
+
+	glove->~vhtCyberGlove();
 	return ptrGloveData;
 }
 
@@ -153,9 +151,13 @@ void mexFunction(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[]) {
 	for (index = 0; index < size; index++) {
 		dynamicGloveData[index] = ptrGloveData[index];
 	}
+	// cout << "disp!";
+	// for (int i = 0; i < 15; i++){
 
+	// 		cout << dynamicGloveData[i] << " ";
+	// }
 	plhs[0] = mxCreateNumericMatrix((mwSize)size, (mwSize)1, mxDOUBLE_CLASS, mxREAL);
 	mxSetDoubles(plhs[0], dynamicGloveData);
-	// mxFree(dynamicGloveData);       // free the allocated space
+	//mxFree(dynamicGloveData);       //free the allocated space, cannot implement this way
 	return;
 }

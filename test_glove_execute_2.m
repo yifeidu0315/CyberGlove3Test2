@@ -16,10 +16,10 @@ while n < 30
     iniData_linear = iniData(:);
     disp("Data Linearized");
     
-    %% Format the Data into a 5x3 double precision array
+    %% Format the Data into a 6x3 double precision array
     % for now we are not sure what is the cause of the incorrect array
     % formatting in matlab workspace. This is only a temporary fix as the 
-    % time efficiency of the program is acceptable
+    % time efficiency of the program is a concern.
     
     index = 0;
     for index_m = 1 : size_m
@@ -32,7 +32,12 @@ while n < 30
         end
     end
     disp("Data from last pull stored in array 'GloveData_last'");
-
+    % initialize the base time for reference
+    if n == 0
+        baseT = GloveData_last(size_m, 1, 1);
+    end
+    % determine delta time
+    deltaT = GloveData_last(size_m, 1, 1) - baseT;
     % merge the matrix together to combine data
     GloveData_full = cat(3, GloveData_full, GloveData_last);
     n=n+1;

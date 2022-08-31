@@ -25,5 +25,5 @@ ipath = ['-I' hFilesPath];
 %     -lCGS_VirtualHandCore -lCGS_VirtualHandDevice Source_initialization.cpp
 mex -R2018a "-IC:\Users\yifei\OneDrive\virtual hand files\CyberGlove Systems VirtualHand Software\CyberGlove Systems\VirtualHand SDK\include\vhandtk"...
     "-LC:\Users\yifei\OneDrive\virtual hand files\CyberGlove Systems VirtualHand Software\CyberGlove Systems\VirtualHand SDK\lib\winnt_x64\Release" ...
-    -lCGS_VirtualHandCore -lCGS_VirtualHandDevice Source_mxArray_test.cpp
+    -lCGS_VirtualHandCore -lCGS_VirtualHandDevice Source_mxArray_2.cpp
 
