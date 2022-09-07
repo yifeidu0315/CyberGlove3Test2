@@ -19,13 +19,7 @@ x = 0 : n;
 plot(x, GloveData_full(1, :), x, GloveData_full(2, :), x, GloveData_full(3, :))
 
 %% Analysis
-% measure and plot the difference between each data pull
-t_diff = zeros(n, 1);
-for i = 2 : (n - 1)
-    t_diff(i, 1) = GloveData_full(16, i + 1) - GloveData_full(16, i);
-end
-figure(2);
-plot(t_diff(1 : n, 1))
+test_analysis;
 
 
 
