@@ -3,10 +3,14 @@
 %% measure and plot the difference between each data pull
 t_diff = zeros(n, 1);
 for i = 2 : (n - 1)
-    t_diff(i, 1) = GloveData_full(16, i + 1) - GloveData_full(16, i);
+    t_diff(i, 1) = (GloveData_full(16, i + 1) - GloveData_full(16, i))* 24 * 60 * 60 * 1000;
 end
-figure(2);
+figure('Name', 'Inividual Time Interval (between each data pull)');
 plot(t_diff(1 : n, 1))
+title('Inividual Time Interval (between each data pull)')
+xlabel('Number of sample')
+ylabel('Time(ms)')
+avg_t_diff = mean(t_diff); % average time interval in ms.
 
 %% measure and plot chunk average refresh rate for each 10 samples
 avg_size = 10;
@@ -16,8 +20,12 @@ for i = 1 : n / avg_size
     avg_fps_10(i, 1) = avg_size / ((GloveData_full(16, i * avg_size) - GloveData_full(16, (i - 1) * avg_size + 1))* 24 * 60 * 60);
 end
 fluc_10 = avg_fps_10(:, 1) - avg_fps;
-figure(3);
+figure('Name', 'Average Refresh Rate (for 10 sample chunk)');
 plot((1:1000), avg_fps_10,':', (1:1000), fluc_10)
+title('Average Refresh Rate (for 10 sample chunk)')
+xlabel('Number of sample')
+ylabel('Refresh per second (/s)')
+legend('original', 'offset')
 
 std_avg_fps_10 = std(avg_fps_10(2 : 1000, 1)); % calculate standard deviation of the average refresh rate
 
@@ -29,8 +37,13 @@ for i = 1 : n / avg_size
     avg_fps_100(i, 1) = avg_size / ((GloveData_full(16, i * avg_size) - GloveData_full(16, (i - 1) * avg_size + 1))* 24 * 60 * 60);
 end
 fluc_100 = avg_fps_100(:, 1) - avg_fps;
-figure(4);
+figure('Name', 'Average Refresh Rate (for 100 sample chunk)');
 plot((1:100), avg_fps_100,':', (1:100), fluc_100)
+title('Average Refresh Rate (for 100 sample chunk)')
+xlabel('Number of sample')
+ylabel('Refresh per second (/s)')
+legend('original', 'offset')
+
 std_avg_fps_100 = std(avg_fps_100(2 : 100, 1)); % calculate standard deviation of the average refresh rate
 
 %% measure and plot a windowed refresh rate with numeric convolution
@@ -42,7 +55,7 @@ avg_fps_10_99 = quantile(avg_fps_10, [.01 .99]); % switch to quantile
 avg_fps_10_95 = quantile(avg_fps_10, [.05 .95]);
 
 %% measure and plot the distribution of repeated frames
-repetition = null();
+repetition = zeros(1);
 rep_count = 0;
 i = 0;
 j = 0;
@@ -53,8 +66,14 @@ while i < length(GloveData_full)
         j = j + 1;
     end
     repetition = [repetition, rep_count]; % need to figure out how to determine the size of the array for speed.
+    rep_count = 1;
     i = i + j;
-
+    j = 0;
 end
-figure(5);
+figure('Name', 'histogram');
 histogram(repetition);
+title('2-D Line Plot')
+xlabel('Number of sample')
+ylabel('Number of repetition')
+
+save('Sep 7 workspace');
