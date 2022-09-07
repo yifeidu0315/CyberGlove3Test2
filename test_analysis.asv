@@ -30,5 +30,4 @@ std_avg_fps_100 = std(avg_fps_100(2 : 100, 1)); % calculate standard deviation o
 
 % measure the 99% and 95% refresh rate
 sorted_avg_fps_10 = sort(avg_fps_100);
-avg_fps_10_99 = sorted_avg_fps_10(floor(length(sorted_avg_fps_10) * 0.99), 1);
-avg_fps_10_95 = sorted_avg_fps_10(floor(length(sorted_avg_fps_10) * 0.95), 1);
+avg_fps_
