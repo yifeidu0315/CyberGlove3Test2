@@ -7,7 +7,7 @@ GloveData_full_r = zeros(16, 1); % the 16th data represents the timestamp
 figure('Name', 'Joint Angle Data in radius');
 while n < 10000
     disp(n)
-    iniData(1:15, 1) = Source_mxArray_3();
+    iniData(1:15, 1) = Source_mxArray_4();
     iniData(16, 1) = now;
     GloveData_full_r = cat(2, GloveData_full_r, iniData);
     n = n + 1;
