@@ -2,7 +2,7 @@
 Initialize a connection and update joint angle data from CyberGlove 
 -Update data only one time
 * mex in test_source.m
-* call in test_glove_execute_2.m
+* call in test_glove_execute.m
 2022.8.20
 Jeff Du
 ********************************************************************/

@@ -1,4 +1,5 @@
-% set up time samples (not implemented)
+%% import workspace data (Optional)
+% load('Sep 7 workspace');
 
 %% measure and plot the difference between each data pull
 t_diff = zeros(n, 1);
@@ -70,10 +71,26 @@ while i < length(GloveData_full)
     i = i + j;
     j = 0;
 end
-figure('Name', 'histogram');
+figure('Name', 'Distribution of repeated frames');
 histogram(repetition);
 title('2-D Line Plot')
 xlabel('Number of sample')
 ylabel('Number of repetition')
 
-save('Sep 7 workspace');
+%% measure and plot the distribution of angle increment sizes
+increments = zeros(15, length(GloveData_full_r) - 1);
+
+i = 0;
+while i < length(increments)
+    i = i + 1;
+    increments(:, i) = GloveData_full_r((1:15), i + 1) - GloveData_full_r((1:15), i); 
+end
+
+figure('Name', 'Distribution of angle increment sizes');
+histogram(increments(1, :));
+title('Distribution of angle increment sizes')
+xlabel('Number of sample')
+ylabel('Increment size')
+
+%% save all workspace variables
+save('Sep 13 workspace');

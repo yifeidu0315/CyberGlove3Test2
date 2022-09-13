@@ -148,6 +148,7 @@
     <ClCompile Include="Source_mxArray_1.cpp" />
     <ClCompile Include="Source_mxArray_2.cpp" />
     <ClCompile Include="Source_mxArray_3.cpp" />
+    <ClCompile Include="Source_mxArray_4.cpp" />
     <ClCompile Include="testFeval.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
