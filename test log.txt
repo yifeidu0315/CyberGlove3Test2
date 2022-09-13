@@ -1,0 +1,223 @@
+7.20 Wednesday
+CyberGlove 3 Code:
+using matlab to call c++ through mex files/functions
+route: testGlove - staticGloveGetSample (this is a mexfunction apparently)
+mex-files: files that can be called by matlab
+mxarrays: matlab array (which includes all data types in matlab) decleared in C
+command "mex": compile and build mex files from .cpp files with C++ compiler.
+mex CyberGlove.cpp -  Error Message: unresolved symbol mexfunction
+mex InitCyberGlove.cpp -  Error Message: lots of undecleared identifier
+use cliggen.generateLibraryDefinition to create a link between matlab and C++ library (two para needed, one fullpath to CyberGlove.h file, one fullpath to CyberGlove.cpp file)
+after this, we still cannot use mex command to construct mex files from other .cpp files. Error message: undecleared identifiers. 
+trying to link C++ library with all of the .cpp files as supportingSourceFiles. 
+CyberGlove 2 Bluetooth:
+Original GBU221 BT Adaptor driver cannot be installed on Win10 even with compatibility settings and administrator athuorization.
+With Win10 native BlueTooth Adaptor, we can paired the CyberGlove device with code 0000. But we cannot connect the device. And the LED indcator shows that the device is not connected. 
+
+7.21 Thursday
+CyberGlove 3 Code:
+Reviewed Virtual Hand SDK programming guide. 
+Configured library directories, include directories in visual studio.
+checked and compiled a sample code in visual studio.
+VirtualHand SDK v3.13 mentions the methods for accessing devices from c++ code.
+successfully tested the c++ sample code that retrive raw angle data from the glove in configured visual studio. 
+tested clibgen and mex command again in matlab.
+
+7.24 Sunday
+CyberGlove 3 Code:
+Reviewed documentation for Matlab Engine API - for launching Matlab from C++ programs
+Configured environment variables on Windows as required in documentation
+Configured include directories, linker library directories, and linker input dependencies. 
+Compiled sample program testFeval.cpp using visual studio IDE. error LNK2019
+solved LNK2019 by changing the solution platforms from x86 to x64 (as the current system is x64 with x64 Matlab)
+an exception occurred when running the program. Cannot create Matlab engine session. 
+use visual c++ 2019 as the compiler for matlab mex command.
+Tried using mex -v -client engine testFeval.cpp command in matlab as required in MathWorks documentation. mex is completed successfully
+cannot run the resulting testFeval.exe properly error message: The specified module cannot be found.  Apparently, the program is missing .dll files.
+used Dependency Walker to check the missing .dll files. found at least 20. I suspect that the environment of c++ compiler is not properly configured when using mex command on matlab.
+tried to build mex file with a specified path to library files (libMatlabEngine.lib and libMatlabDataArray.lib) the build failed with an error message: unresolved external symbol mexFunction - meaning that no mexFunction is included in testFeval.cpp
+
+May try the following in the future:
+1. try to build mex file with a specified path to include files
+2. try to build mex file  with a specified path to both include files and library files
+3. try Matlab command matlab.engine.shareEngine and matlab.engine.shareEngine(name) to convert running Matlab session to shared session.
+
+found new documentation about mex functions. with C++ APIs that can be implemented
+
+7.26 Tuesday
+CyberGlove 3 Code:
+Review documentation for Creating C++ MEX functions with C++ MEX API.
+Tried sample code given in the documentation, the code runs without problems. 
+Found out that mex.h and mexAdapter.hpp supports different APIs. mex.h supports the older C Matrix API (this API was used in the rombokas code), while mexAdapter.hpp supports the newer C++ MEX API. 
+Distinguish the different syntax between the two API. In C Matrix API, only the implementation of function mexFunction() is necessary. But in C++ MEX API, a mexFunction class with namespace public matlab::mex::Function is necessary and the operation is implemented by overwriting function operator()
+The two APIs cannot be used simutaneously.
+Implemented the previous code for grabing glove data with mexFunction() and successfully generated a .mexw64 file.
+executed the  .mexw64 file by calling its name as a function in matlab without a problem. The glove angle data is displayed on matlab command window.
+Tried to put glove data directly into matlab workspace. 
+We chose to implement C Matrix API as it runs more successfully in current setup.
+Tried a sample code with C Matrix API that puts char array into matlab workspace. The sample code runs with no problem
+Several options for data types in matlab:
+
+New Goal:
+use cell array or struct array in matlab to store the data from source.cpp
+fix the rows and cols problem
+implement delta T in test_source.m
+write down instructions in readme.md
+
+7.28-29 Thursday-Friday
+CyberGlove 3 Code:
+Implemented a loop in matlab
+Implemented delta T in matlab
+
+8.1 Monday
+CyberGlove 3 Code:
+Tested the implementation from last week. 
+The connection was not stable (can call mex file for around 10-12 times in the loop) while transfering back the array. If connect the glove for more than 12 times, Exception Msg: "Unexpected unknown exception from MEX file". Will have to restart DCU and add the glove again.
+
+Possibly due to multiple connection made in mex file. Need to implement connection in a separate file probably. 
+The portion to merge joint angle data from every pull does not work as intended. The size of the array did not change.
+tested the function cat() in file test_cat.m, the arrays merge properly if the non-cating dimensions match. 
+implemented both GloveData_last and GloveData_full as 3D array.
+Tested the original Source.cpp which only prints out the data on command window. The  performance suffered (the output gets slower and slower.) I suspect that the performance problem is caused by multiple connections. 
+Have to figure out how to only connect the golve once and only update data from each call. (or we will have to go back to the old way, to implement the loop in mex file and return all joint angle data within call interval.)
+checked the staticGloveGetSample.cpp, noticed a function cleanup() that is called when existing the mexfunction that deletes the existing glove object. Suspect that the limit may be due to the glove objects are created but not deleted after each call. 
+tried to implement the clean up function and change the vhtCyberGlove declaration to outside Source(). mex file executed for 13 times before unexpected exception terminates the program.
+
+8.3 Wednesday
+CyberGlove 3 Code:
+tried to mex rombokas code. error LNK2019
+tried different header file directories, error remains the same.
+all unresolved external symbol include __cdecl, suspect error due to incompatibility between x86 and x64 systems. 
+searched for LNK2019 error with mex command, seems that compiler cannot auto include CyberGlove.cpp with CyberGlove.h so that it does not know the implementation of the functions and variables in CyberGlove.h 
+the unresolved external symbol can be solved by including the .cpp file instead of .h file
+the mex file compiled successfully after changing #include "CyberGlove.h" to #include "CyberGlove.cpp"
+tried with testGlove.m, error msg: Cannot open port (the glove is connected through DCU)
+tried with testGlove.m, error msg: Cannot read data from serial-port (the glove is physically plugged in but not connected through DCU)
+
+8.8 Monday
+CyberGlove 3 Code:
+looked into CyberGlove.h and CyberGlove.cpp error msg: "Cannot open port" results from port = CreateFile();
+CreateFile() is in Win32 API could have compatibility issue. 
+mex file generate mexw64 file
+
+8.19 Friday
+CyberGlove 3 Code:
+What we can do now:
+What we cannot do yet:
+What I plan to do:
+Limitations:
+RomboKas Code: Header files, initialization failed
+CreateFileA() similar issue reported on stackoverflow on the incompatibility of win64 system. 
+
+Virtual hand API: mxMalloc() allocates memory space, and needs to be freed with mxFree(). this could cause the performance issue.
+create installation media. 
+
+win10 32bit system created in usb stick, cannot access WLAN card on my laptop, ethernet doesn't work
+checked Device Configuration Utility Console:
+error msg:
+[lib] VT_ServerSocketWatch: tcp timeout, current clients: 1
+[lib] VT_ServerSocketWatch: new connection request.
+[lib] VT_ServerSocketAccept: accepted 18c1240, 2 of max 13
+[master] VTDM_OpenURL: open server=localhost:port=12345
+port=Serial5:baudrate=115200
+device=cyberglove
+
+[master] VTDM_OpenURL: open port=Serial5:baudrate=115200:eventchar=on
+device=ioman
+
+[seriald] The request port has already been openned.
+[gloved] New: the request instance has already been created.
+[seriald] 1 clients still connected.
+[lib] VT_ServerSocketWatch: new connection request.
+[lib] VT_ServerSocketAccept: accepted 18c52c0, 3 of max 13
+[master] VTDM_OpenURL: open server=localhost:port=12345
+port=Serial5:baudrate=115200
+device=cyberglove
+
+[master] VTDM_OpenURL: open port=Serial5:baudrate=115200:eventchar=on
+device=ioman
+
+[seriald] The request port has already been openned.
+[gloved] New: the request instance has already been created.
+[seriald] 1 clients still connected.
+[gloved] fps: 90.0
+[lib] VT_ServerSocketWatch: tcp timeout, current clients: 3
+[gloved] fps: 90.0
+[lib] VT_ServerSocketWatch: tcp timeout, current clients: 3
+[gloved] fps: 90.0
+[lib] VT_ServerSocketWatch: tcp timeout, current clients: 3
+[gloved] fps: 89.9
+[lib] VT_ServerSocketWatch: tcp timeout, current clients: 3
+[gloved] fps: 90.0
+[lib] VT_ServerSocketWatch: tcp timeout, current clients: 3
+[gloved] fps: 90.0
+[lib] VT_ServerSocketWatch: tcp timeout, current clients: 3
+[gloved] fps: 90.0
+[lib] VT_ServerSocketWatch: tcp timeout, current clients: 3
+[lib] VT_ServerSocketWatch: tcp timeout, current clients: 3
+[gloved] fps: 90.0
+[lib] VT_ServerSocketWatch: tcp timeout, current clients: 3
+[gloved] fps: 90.0
+[lib] VT_ServerSocketWatch: tcp timeout, current clients: 3
+[gloved] fps: 89.9
+[master] tcp_service: head read 0, expecting 32
+[lib] VT_ListItemDestroy: 18c1240 destroyed.
+[lib] VT_ServerSocketWatch: tcp client 1 removed, 2 remain.
+[master] tcp_service: head read 0, expecting 32
+[lib] VT_ListItemDestroy: 18c52c0 destroyed.
+[lib] VT_ServerSocketWatch: tcp client 1 remo
+
+Confirmed that the performance issue is due to multiple connection request that eventually maxed out the instances. 
+try to initialize only once. 
+with glove = new vhtCyberGlove(); glove->connect(); the program terminates with unexpected error.
+with glove->connect(); The console output:
+[lib] VT_ServerSocketWatch: new connection request.
+[lib] VT_ServerSocketAccept: accepted 1478550, 2 of max 13
+[master] VTDM_OpenURL: open server=localhost:port=12345
+port=Serial5:baudrate=115200
+device=cyberglove
+
+[master] VTDM_OpenURL: open port=Serial5:baudrate=115200:eventchar=on
+device=ioman
+
+[seriald] The request port has already been openned.
+[gloved] New: the request instance has already been created.
+[seriald] 1 clients still connected.
+
+seems the problem is unsolved
+[master] tcp_service: head read 0, expecting 32
+[lib] VT_ListItemDestroy: 1478550 destroyed.
+[lib] VT_ServerSocketWatch: tcp client 1 removed, 1 remain.
+VT_SerialWatch: waitcommevent error 5
+[gloved] GloveWorker: VTERR_SERIAL_SELECT
+[seriald] VT_SerialWatch: announce quit.
+[gloved] GloveWorker: serialman is going to quit...
+[seriald] VT_SerialWatch: Watcher exit.
+[lib] VT_ServerSocketWatch: tcp timeout, current clients: 1
+[lib] VT_ServerSocketWatch: new connection request.
+[lib] VT_ServerSocketAccept: accepted 1478550, 2 of max 13
+[master] VTDM_OpenURL: open server=localhost:port=12345
+port=Serial5:baudrate=115200
+device=cyberglove
+
+[master] VTDM_OpenURL: open port=Serial5:baudrate=115200:eventchar=on
+device=ioman
+
+[seriald] The request port has already been openned.
+[gloved] New: the request instance has already been created.
+[seriald] 1 clients still connected.
+[gloved] Destroy: 10 clients share the instance.
+[master] tcp_service: head read 0, expecting 32
+[lib] VT_ListItemDestroy: 1478550 destroyed.
+[lib] VT_ServerSocketWatch: tcp client 1 removed, 1 remain.
+and matlab crashes
+Try destorying the glove instance and connection every time. Worked
+
+9.7 Wednesday
+CyberGlove 3 Code:
+find out distribution of repeated frames (from the original sample)
+add legends, axis titles, and titles to the figures
+output and save the individual interval between each data pull
+replace now with tic toc for better performance
+need to figure out the resolution of the sensors
+figure out the how readings from the sensor translate to angles.
