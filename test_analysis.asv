@@ -1,5 +1,4 @@
-%% import workspace data (Optional)
-% load('Sep 7 workspace');
+% set up time samples (not implemented)
 
 %% measure and plot the difference between each data pull
 t_diff = zeros(n, 1);
@@ -63,9 +62,9 @@ repetition = zeros(1);
 rep_count = 1;
 i = 0;
 j = 1;
-while i < (length(GloveData_full) - 1)
+while i < length(GloveData_full)
     i = i + 1;
-    while GloveData_full((1 : 15), i) == GloveData_full((1 : 15), i + j)
+    while GloveData_full((1:15), i) == GloveData_full(i + j)
         rep_count = rep_count + 1;
         j = j + 1;
     end
@@ -74,35 +73,11 @@ while i < (length(GloveData_full) - 1)
     i = i + j;
     j = 1;
 end
-<<<<<<< Updated upstream
-figure('Name', 'Distribution of repeated frames');
-=======
 figure('Name', 'Repetition distribution');
->>>>>>> Stashed changes
 histogram(repetition);
-title('Repetition distribution')
+title('2-D Line Plot')
 xlabel('Number of sample')
 ylabel('Number of repetition')
 savefig('Repetition distribution.fig');
 
-<<<<<<< Updated upstream
-%% measure and plot the distribution of angle increment sizes
-increments = zeros(15, length(GloveData_full_r) - 1);
-
-i = 0;
-while i < length(increments)
-    i = i + 1;
-    increments(:, i) = GloveData_full_r((1:15), i + 1) - GloveData_full_r((1:15), i); 
-end
-
-figure('Name', 'Distribution of angle increment sizes');
-histogram(increments(1, :));
-title('Distribution of angle increment sizes')
-xlabel('Number of sample')
-ylabel('Increment size')
-
-%% save all workspace variables
-save('Sep 13 workspace');
-=======
 save('Current workspace');
->>>>>>> Stashed changes
