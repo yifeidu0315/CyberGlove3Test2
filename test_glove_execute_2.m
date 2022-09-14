@@ -15,7 +15,7 @@ while n < 10000
 end
 
 %% Data storage
-writematrix(GloveData_full_r, 'Joint_Angle_Data_radius.csv');
+writematrix(GloveData_full_r, 'Joint_Angle_Data_radian.csv');
 
 %% Data Visualization
 x = 0 : n;

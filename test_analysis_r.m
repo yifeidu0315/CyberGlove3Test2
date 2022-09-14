@@ -6,6 +6,7 @@ figure('Name', 'Sample in degrees')
 x = 0 : n;
 plot(x, GloveData_full_r(1, :) * (180 / pi), x, GloveData_full_r(2, :) * (180 / pi), x, GloveData_full_r(3, :) * (180 / pi))
 title('Sample in degrees')
+legend('proximal', 'distal', 'finger tip')
 xlabel('Sample No.')
 ylabel('Angle in (degree)')
 savefig('figures and plots\Sample in degrees.fig');
