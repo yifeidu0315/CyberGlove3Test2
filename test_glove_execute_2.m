@@ -4,7 +4,7 @@ n = 0; % number of data pull
 GloveData_full_r = zeros(16, 1); % the 16th data represents the timestamp
 
 %% Call the Mex file and obtain Glove Data
-figure('Name', 'Joint Angle Data in radius');
+figure('Name', 'Joint Angle Data in radian');
 while n < 10000
     disp(n)
     iniData(1:15, 1) = Source_mxArray_4();
