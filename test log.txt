@@ -221,3 +221,19 @@ output and save the individual interval between each data pull
 replace now with tic toc for better performance
 need to figure out the resolution of the sensors
 figure out the how readings from the sensor translate to angles.
+
+10.18 Tuesday
+CyberGlove 3 Code:
+According to Table1: Sensor Data Byte Ordering
+3. thumb abduction (angle between thumb and index finger)
+7. index abduction (sideways motion of index finger) not yet implemented!!!
+11. middle-index abduction (angle between middle and index fingers)
+15. ring-middle abduction (angle between ring and middle fingers)
+19. pinky-ring abudction (angle between pinky and ring fingers)
+
+palm related angles:
+20. palm arch
+21. wrist pitch
+22. wrist yaw/abduction
+
+Thus number 7 is not implemented. We should only take data from 3. 11. 15. 19.

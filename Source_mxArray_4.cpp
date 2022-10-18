@@ -1,5 +1,5 @@
 /********************************************************************
-Initialize a connection and update joint angle data in radius from CyberGlove
+Initialize a connection and update joint angle data in radian from CyberGlove
 -Update data only one time
 * mex in test_source.m
 * call in test_glove_execute_2.m
