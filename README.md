@@ -39,7 +39,7 @@ c++ side:
 [4][2] pinky distal
 [4][3] ring-pinky abduction
 [5][0] palm arch
-[5][1] wrist pitch/flextion
+[5][1] wrist pitch/flexion
 [5][2] wrist yaw/abduction
 [5][3] !!!empty!!!
 
@@ -65,7 +65,7 @@ matlab side:
 [19] pinky distal
 [20] ring-pinky abduction
 [21] palm arch
-[22] wrist pitch/flextion
+[22] wrist pitch/flexion
 [23] wrist yaw/abduction
 [24] !!!empty!!!
 [25] matlab now timestamp
